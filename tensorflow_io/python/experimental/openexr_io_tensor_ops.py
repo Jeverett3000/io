@@ -43,17 +43,14 @@ class EXRIOTensor(
             data = tf.io.read_file(filename)
             shapes, dtypes, channels = core_ops.io_decode_exr_info(data)
             parts = []
-            index = 0
-            for (shape, dtypes, channels) in zip(
+            for index, (shape, dtypes, channels) in enumerate(zip(
                 shapes.numpy(), dtypes.numpy(), channels.numpy()
-            ):
+            )):
                 # Remove trailing 0 from dtypes
                 while dtypes[-1] == 0:
                     dtypes.pop()
                     channels.pop()
-                spec = tuple(
-                    [tf.TensorSpec(tf.TensorShape(shape), dtype) for dtype in dtypes]
-                )
+                spec = tuple(tf.TensorSpec(tf.TensorShape(shape), dtype) for dtype in dtypes)
                 columns = [channel.decode() for channel in channels]
                 elements = [
                     io_tensor_ops.TensorIOTensor(
@@ -65,7 +62,6 @@ class EXRIOTensor(
                 parts.append(
                     EXRPartIOTensor(spec, columns, elements, internal=internal)
                 )
-                index += 1
-            spec = tuple([part.spec for part in parts])
+            spec = tuple(part.spec for part in parts)
             columns = [i for i, _ in enumerate(parts)]
             super().__init__(spec, columns, parts, internal=internal)

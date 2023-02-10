@@ -14,6 +14,7 @@
 # ==============================================================================
 """Setup for pip package."""
 
+
 import os
 import sys
 import shutil
@@ -29,12 +30,8 @@ with open(os.path.join(here, "tensorflow_io/python/ops/version_ops.py")) as f:
     entries = [e.strip() for e in f.readlines() if not e.startswith("#")]
     assert sum(e.startswith("version = ") for e in entries) == 1
     assert sum(e.startswith("require = ") for e in entries) == 1
-    version = list([e[10:] for e in entries if e.startswith("version = ")])[0].strip(
-        '"'
-    )
-    require = list([e[10:] for e in entries if e.startswith("require = ")])[0].strip(
-        '"'
-    )
+    version = [e[10:] for e in entries if e.startswith("version = ")][0].strip('"')
+    require = [e[10:] for e in entries if e.startswith("require = ")][0].strip('"')
     assert version != ""
     assert require != ""
 
@@ -55,38 +52,37 @@ else:
 assert (
     project.replace("_", "-") == "tensorflow-io"
     or project.replace("_", "-") in subpackages
-), "--project ({} or {}) must be provided, found {}".format(
-    "tensorflow-io", ", ".join(subpackages), project
-)
+), f'--project (tensorflow-io or {", ".join(subpackages)}) must be provided, found {project}'
 project = project.replace("_", "-")
 
 exclude = (
     ["tests", "tests.*"]
     + [e.replace("-", "_") for e in subpackages if e != project]
-    + ["{}.*".format(e.replace("-", "_")) for e in subpackages if e != project]
-    + (["tensorflow_io", "tensorflow_io.*"] if project != "tensorflow-io" else [])
+    + [f'{e.replace("-", "_")}.*' for e in subpackages if e != project]
+) + (
+    ["tensorflow_io", "tensorflow_io.*"] if project != "tensorflow-io" else []
 )
 project_rootpath = project.replace("-", "_")
 
 if "--nightly" in sys.argv:
     nightly_idx = sys.argv.index("--nightly")
-    version = version + ".dev" + sys.argv[nightly_idx + 1]
-    project = project + "-nightly"
+    version = f"{version}.dev{sys.argv[nightly_idx + 1]}"
+    project = f"{project}-nightly"
     sys.argv.remove("--nightly")
     sys.argv.pop(nightly_idx)
 
 install_requires = []
 if project == "tensorflow-io":
-    install_requires = [require] + ["{}=={}".format(e, version) for e in subpackages]
+    install_requires = [require] + [f"{e}=={version}" for e in subpackages]
 elif project == "tensorflow-io-nightly":
     install_requires = [require] + [
-        "{}-nightly=={}".format(e, version) for e in subpackages
+        f"{e}-nightly=={version}" for e in subpackages
     ]
 
-print("Project: {}".format(project))
-print("Exclude: {}".format(exclude))
-print("Install Requires: {}".format(install_requires))
-print("Project Rootpath: {}".format(project_rootpath))
+print(f"Project: {project}")
+print(f"Exclude: {exclude}")
+print(f"Install Requires: {install_requires}")
+print(f"Project Rootpath: {project_rootpath}")
 
 datapath = None
 if "--data" in sys.argv:
@@ -99,9 +95,7 @@ else:
 
 if (datapath is not None) and ("bdist_wheel" in sys.argv):
     rootpath = tempfile.mkdtemp()
-    print(
-        "setup.py - create {} and copy {} data files".format(rootpath, project_rootpath)
-    )
+    print(f"setup.py - create {rootpath} and copy {project_rootpath} data files")
     for rootname, _, filenames in os.walk(os.path.join(datapath, project_rootpath)):
         if not fnmatch.fnmatch(rootname, "*test*") and not fnmatch.fnmatch(
             rootname, "*runfiles*"
@@ -127,7 +121,7 @@ if (datapath is not None) and ("bdist_wheel" in sys.argv):
                     rootpath,
                     os.path.relpath(os.path.join(rootname, filename), datapath),
                 )
-                print("setup.py - copy {} to {}".format(src, dst))
+                print(f"setup.py - copy {src} to {dst}")
                 os.makedirs(os.path.dirname(dst), exist_ok=True)
                 shutil.copyfile(src, dst)
     sys.argv.append("--bdist-dir")

@@ -130,10 +130,8 @@ def test_serialization_decode(fixture_lookup, serialization_fixture, decode_func
     returned = decode_function(data, specs)
     tf.nest.assert_same_structure(value, returned)
     assert all(
-        [
-            np.array_equal(v, r)
-            for v, r in zip(tf.nest.flatten(value), tf.nest.flatten(returned))
-        ]
+        np.array_equal(v, r)
+        for v, r in zip(tf.nest.flatten(value), tf.nest.flatten(returned))
     )
 
 
@@ -158,10 +156,8 @@ def test_serialization_encode(
     returned = decode_function(returned, specs)
     tf.nest.assert_same_structure(value, returned)
     assert all(
-        [
-            np.array_equal(v, r)
-            for v, r in zip(tf.nest.flatten(value), tf.nest.flatten(returned))
-        ]
+        np.array_equal(v, r)
+        for v, r in zip(tf.nest.flatten(value), tf.nest.flatten(returned))
     )
 
 
@@ -187,10 +183,8 @@ def test_serialization_decode_in_dataset(
     for returned in entries:
         tf.nest.assert_same_structure(value, returned)
         assert all(
-            [
-                np.array_equal(v, r)
-                for v, r in zip(tf.nest.flatten(value), tf.nest.flatten(returned))
-            ]
+            np.array_equal(v, r)
+            for v, r in zip(tf.nest.flatten(value), tf.nest.flatten(returned))
         )
 
 

@@ -27,7 +27,7 @@ def test_decode_obj():
     filename = os.path.join(
         os.path.dirname(os.path.abspath(__file__)), "test_obj", "sample.obj",
     )
-    filename = "file://" + filename
+    filename = f"file://{filename}"
 
     obj = tfio.experimental.image.decode_obj(tf.io.read_file(filename))
     expected = np.array(

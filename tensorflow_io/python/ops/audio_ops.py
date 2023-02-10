@@ -341,7 +341,7 @@ def fade(input, fade_in, fade_out, mode, name=None):
     elif mode == "exponential":
         factor_in = tf.math.expm1(factor_in) / tf.math.expm1(1.0)
     else:
-        raise ValueError("{} mode not supported".format(mode))
+        raise ValueError(f"{mode} mode not supported")
 
     factor_in = tf.concat([factor_in, ones_in], axis=0)
 
@@ -354,7 +354,7 @@ def fade(input, fade_in, fade_out, mode, name=None):
     elif mode == "exponential":
         factor_out = tf.math.expm1(factor_out) / tf.math.expm1(1.0)
     else:
-        raise ValueError("{} mode not supported".format(mode))
+        raise ValueError(f"{mode} mode not supported")
 
     factor_out = tf.concat([ones_out, factor_out], axis=0)
 
@@ -643,9 +643,7 @@ class AudioIOTensor:
     # String Encoding
     # =============================================================================
     def __repr__(self):
-        return "<AudioIOTensor: shape={}, dtype={}, rate={}>".format(
-            self.shape, self.dtype, self.rate
-        )
+        return f"<AudioIOTensor: shape={self.shape}, dtype={self.dtype}, rate={self.rate}>"
 
     # =============================================================================
     # Tensor Type Conversions
@@ -669,7 +667,7 @@ class AudioIOTensor:
         """Returns the specified piece of this IOTensor."""
         # always convert to tuple to process
         if not isinstance(key, tuple):
-            key = tuple([key])
+            key = (key, )
         # get the start and stop of each element
         indices = [
             (k.start, k.stop) if isinstance(k, slice) else (k, k + 1) for k in key

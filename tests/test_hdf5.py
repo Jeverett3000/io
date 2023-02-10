@@ -145,14 +145,14 @@ def test_hdf5_bool():
         [True, False, True, False, True, False, True, False, True, False]
     )
 
-    with h5py.File("{}/my_data.h5".format(runpath), "w") as h5_obj:
+    with h5py.File(f"{runpath}/my_data.h5", "w") as h5_obj:
         h5_obj["my_bool_data"] = boolean_data
 
-    with h5py.File("{}/my_data.h5".format(runpath), "r") as h5_obj:
+    with h5py.File(f"{runpath}/my_data.h5", "r") as h5_obj:
         print(h5_obj["my_bool_data"].shape, h5_obj["my_bool_data"].dtype)
 
     spec = {"/my_bool_data": tf.TensorSpec(shape=(None,), dtype=tf.bool)}
-    h5_tensors = tfio.IOTensor.from_hdf5("{}/my_data.h5".format(runpath), spec=spec)
+    h5_tensors = tfio.IOTensor.from_hdf5(f"{runpath}/my_data.h5", spec=spec)
 
     print("H5 DATA: ", h5_tensors("/my_bool_data").to_tensor())
 
@@ -162,20 +162,18 @@ def test_hdf5_bool():
     dtype = h5py.special_dtype(enum=(np.int16, mapping))
     enum_data = np.asarray([0, 1, 2, 3])
 
-    with h5py.File("{}/my_enum_data.h5".format(runpath), "w") as h5_obj:
+    with h5py.File(f"{runpath}/my_enum_data.h5", "w") as h5_obj:
         dset = h5_obj.create_dataset("my_enum_data", [4], dtype=dtype)
         dset = enum_data
 
-    with h5py.File("{}/my_enum_data.h5".format(runpath), "r") as h5_obj:
+    with h5py.File(f"{runpath}/my_enum_data.h5", "r") as h5_obj:
         print(h5_obj["my_enum_data"].shape, h5_obj["my_enum_data"].dtype)
 
     spec = {"/my_enum_data": tf.TensorSpec(shape=(None,), dtype=tf.bool)}
     with pytest.raises(
-        tf.errors.InvalidArgumentError, match=r".*unsupported data class for enum.*"
-    ):
-        h5_tensors = tfio.IOTensor.from_hdf5(
-            "{}/my_enum_data.h5".format(runpath), spec=spec
-        )
+            tf.errors.InvalidArgumentError, match=r".*unsupported data class for enum.*"
+        ):
+        h5_tensors = tfio.IOTensor.from_hdf5(f"{runpath}/my_enum_data.h5", spec=spec)
 
     shutil.rmtree(runpath)
 
