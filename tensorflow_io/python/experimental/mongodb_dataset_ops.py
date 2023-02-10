@@ -36,7 +36,7 @@ class _MongoDBHandler:
         resource = core_ops.io_mongo_db_readable_init(
             uri=self.uri, database=self.database, collection=self.collection,
         )
-        print("Connection successful: {}".format(self.uri))
+        print(f"Connection successful: {self.uri}")
         return resource
 
     def get_next_batch(self, resource):

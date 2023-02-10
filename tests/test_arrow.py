@@ -38,7 +38,7 @@ class ArrowTestBase(tf.test.TestCase):
     """ArrowTestBase"""
 
     @classmethod
-    def setUpClass(cls):  # pylint: disable=invalid-name
+    def setUpClass(cls):    # pylint: disable=invalid-name
         """setUpClass"""
         cls.scalar_data = [
             [True, False, True, True],
@@ -66,7 +66,7 @@ class ArrowTestBase(tf.test.TestCase):
             tf.dtypes.float32,
             tf.dtypes.float64,
         )
-        cls.scalar_shapes = tuple([tf.TensorShape([]) for _ in cls.scalar_dtypes])
+        cls.scalar_shapes = tuple(tf.TensorShape([]) for _ in cls.scalar_dtypes)
 
         cls.list_fixed_data = [
             [[1, 1], [2, 2], [3, 3], [4, 4]],
@@ -81,7 +81,7 @@ class ArrowTestBase(tf.test.TestCase):
             tf.dtypes.float64,
         )
         cls.list_fixed_shapes = tuple(
-            [tf.TensorShape([None]) for _ in cls.list_fixed_dtypes]
+            tf.TensorShape([None]) for _ in cls.list_fixed_dtypes
         )
 
         cls.list_var_data = [
@@ -124,7 +124,7 @@ class ArrowTestBase(tf.test.TestCase):
         elif dt == tf.dtypes.string:
             arrow_type = pa.string()
         else:
-            raise TypeError("Unsupported dtype for Arrow" + str(dt))
+            raise TypeError(f"Unsupported dtype for Arrow{str(dt)}")
         if is_list:
             arrow_type = pa.list_(arrow_type)
         return arrow_type
@@ -141,7 +141,7 @@ class ArrowTestBase(tf.test.TestCase):
             )
             for col in range(len(truth_data.output_types))
         ]
-        names = ["{}_[{}]".format(i, a.type) for i, a in enumerate(arrays)]
+        names = [f"{i}_[{a.type}]" for i, a in enumerate(arrays)]
         return pa.RecordBatch.from_arrays(arrays, names)
 
 
@@ -149,12 +149,12 @@ class ArrowIOTensorTest(ArrowTestBase):
     """ArrowIOTensorTest"""
 
     @classmethod
-    def setUpClass(cls):  # pylint: disable=invalid-name
+    def setUpClass(cls):    # pylint: disable=invalid-name
         """setUpClass"""
         super().setUpClass()
-        cls.scalar_shapes = tuple([tf.TensorShape([len(c)]) for c in cls.scalar_data])
+        cls.scalar_shapes = tuple(tf.TensorShape([len(c)]) for c in cls.scalar_data)
         cls.list_fixed_shapes = tuple(
-            [tf.TensorShape([len(c), len(c[0])]) for c in cls.list_fixed_data]
+            tf.TensorShape([len(c), len(c[0])]) for c in cls.list_fixed_data
         )
 
     def make_table(self, truth_data):
@@ -426,8 +426,8 @@ class ArrowDatasetTest(ArrowTestBase):
         columns = (1, 3, len(truth_data.output_types) - 1)
         dataset = arrow_io.ArrowDataset.from_record_batches(
             batch,
-            tuple([truth_data.output_types[c] for c in columns]),
-            tuple([truth_data.output_shapes[c] for c in columns]),
+            tuple(truth_data.output_types[c] for c in columns),
+            tuple(truth_data.output_shapes[c] for c in columns),
             columns=columns,
         )
         self.run_test_case(dataset, truth_data)
@@ -444,7 +444,7 @@ class ArrowDatasetTest(ArrowTestBase):
             [b"1.1", b"2.2", b"3.3", b"4.4"],
         ]
         scalar_dtypes = (tf.string,)
-        scalar_shapes = tuple([tf.TensorShape([]) for _ in scalar_dtypes])
+        scalar_shapes = tuple(tf.TensorShape([]) for _ in scalar_dtypes)
         truth_data = TruthData(scalar_data, scalar_dtypes, scalar_shapes)
         array = pa.array(
             scalar_data[0], type=self.get_arrow_type(scalar_dtypes[0], False)
@@ -463,7 +463,7 @@ class ArrowDatasetTest(ArrowTestBase):
             [b"1.1", b"2.2", b"3.3", b"4.4"],
         ]
         scalar_dtypes = (tf.dtypes.string,)
-        scalar_shapes = tuple([tf.TensorShape([]) for _ in scalar_dtypes])
+        scalar_shapes = tuple(tf.TensorShape([]) for _ in scalar_dtypes)
         truth_data = TruthData(scalar_data, scalar_dtypes, scalar_shapes)
 
         batch = self.make_record_batch(truth_data)
@@ -540,7 +540,7 @@ class ArrowDatasetTest(ArrowTestBase):
 
         # test single file with 'file://' prefix
         dataset = arrow_io.ArrowFeatherDataset(
-            "file://{}".format(f.name),
+            f"file://{f.name}",
             list(range(len(truth_data.output_types))),
             truth_data.output_types,
             truth_data.output_shapes,
@@ -866,7 +866,7 @@ class ArrowDatasetTest(ArrowTestBase):
 
         dataset = arrow_io.ArrowDataset.from_record_batches(
             batch,
-            tuple([tf.dtypes.int32 for _ in truth_data.output_types]),
+            tuple(tf.dtypes.int32 for _ in truth_data.output_types),
             truth_data.output_shapes,
         )
         with self.assertRaisesRegex(tf.errors.OpError, "Arrow type mismatch"):
@@ -1120,7 +1120,7 @@ class ArrowDatasetTest(ArrowTestBase):
         """Test batching with fixed length list types"""
         import tensorflow_io.arrow as arrow_io
 
-        batch_size = int(len(self.list_fixed_data[0]) / 2)
+        batch_size = len(self.list_fixed_data[0]) // 2
 
         truth_data = TruthData(
             self.list_fixed_data, self.list_fixed_dtypes, self.list_fixed_shapes
@@ -1212,7 +1212,7 @@ class ArrowDatasetTest(ArrowTestBase):
 
         # test single file
         # prefix "file://" to test scheme file system (e.g., s3, gcs, azfs, ignite)
-        columns = arrow_io.list_feather_columns("file://" + f.name)
+        columns = arrow_io.list_feather_columns(f"file://{f.name}")
         for name, dtype in list(zip(batch.schema.names, batch.schema.types)):
             assert columns[name].name == name
             assert columns[name].dtype == dtype

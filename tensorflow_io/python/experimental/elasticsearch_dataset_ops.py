@@ -57,36 +57,33 @@ class _ElasticsearchHandler:
 
             # Additional sanity check
             url_obj = urlparse(node)
-            base_url = "{}://{}".format(url_obj.scheme, url_obj.netloc)
+            base_url = f"{url_obj.scheme}://{url_obj.netloc}"
             self.base_urls.append(base_url)
 
     def prepare_connection_data(self):
         """Prepares the healthcheck and resource urls from the base_urls"""
 
         self.healthcheck_urls = [
-            "{}/_cluster/health".format(base_url) for base_url in self.base_urls
+            f"{base_url}/_cluster/health" for base_url in self.base_urls
         ]
         self.request_urls = []
         for base_url in self.base_urls:
             if self.doc_type is None:
-                request_url = "{}/{}/_search?scroll=1m".format(base_url, self.index)
+                request_url = f"{base_url}/{self.index}/_search?scroll=1m"
             else:
-                request_url = "{}/{}/{}/_search?scroll=1m".format(
-                    base_url, self.index, self.doc_type
-                )
+                request_url = f"{base_url}/{self.index}/{self.doc_type}/_search?scroll=1m"
             self.request_urls.append(request_url)
 
         self.headers = ["Content-Type=application/json"]
         if self.headers_dict is not None:
-            if isinstance(self.headers_dict, dict):
-                for key, value in self.headers_dict.items():
-                    if key.lower() == "content-type":
-                        continue
-                    self.headers.append("{}={}".format(key, value))
-            else:
+            if not isinstance(self.headers_dict, dict):
                 raise ValueError(
                     "Headers should be a dict of key:value pairs. Got: ", self.headers
                 )
+            for key, value in self.headers_dict.items():
+                if key.lower() == "content-type":
+                    continue
+                self.headers.append(f"{key}={value}")
 
     def get_healthy_resource(self):
         """Retrieve the resource which is connected to a healthy node"""
@@ -101,29 +98,26 @@ class _ElasticsearchHandler:
                     request_url=request_url,
                     headers=self.headers,
                 )
-                print("Connection successful: {}".format(healthcheck_url))
+                print(f"Connection successful: {healthcheck_url}")
                 dtypes = []
                 for dtype in raw_dtypes:
-                    if dtype == "DT_INT32":
+                    if dtype == "DT_BOOL":
+                        dtypes.append(tf.bool)
+                    elif dtype == "DT_DOUBLE":
+                        dtypes.append(tf.double)
+                    elif dtype == "DT_INT32":
                         dtypes.append(tf.int32)
                     elif dtype == "DT_INT64":
                         dtypes.append(tf.int64)
-                    elif dtype == "DT_DOUBLE":
-                        dtypes.append(tf.double)
                     elif dtype == "DT_STRING":
                         dtypes.append(tf.string)
-                    elif dtype == "DT_BOOL":
-                        dtypes.append(tf.bool)
                 return resource, columns.numpy(), dtypes, request_url
             except Exception:
-                print("Skipping node: {}".format(healthcheck_url))
+                print(f"Skipping node: {healthcheck_url}")
                 continue
-        else:
-            raise ConnectionError(
-                "No healthy node available for the index: {}, please check the cluster config".format(
-                    self.index
-                )
-            )
+        raise ConnectionError(
+            f"No healthy node available for the index: {self.index}, please check the cluster config"
+        )
 
     def get_next_batch(self, resource, request_url):
         """Prepares the next batch of data based on the request url and
@@ -139,16 +133,13 @@ class _ElasticsearchHandler:
         """
 
         url_obj = urlparse(request_url)
-        scroll_request_url = "{}://{}/_search/scroll".format(
-            url_obj.scheme, url_obj.netloc
-        )
+        scroll_request_url = f"{url_obj.scheme}://{url_obj.netloc}/_search/scroll"
 
-        values = core_ops.io_elasticsearch_readable_next(
+        return core_ops.io_elasticsearch_readable_next(
             resource=resource,
             request_url=request_url,
             scroll_request_url=scroll_request_url,
         )
-        return values
 
     def parse_json(self, raw_item, columns, dtypes):
         """Prepares the next batch of data based on the request url and
@@ -161,11 +152,11 @@ class _ElasticsearchHandler:
         Returns:
             Structured data with columns as keys and the corresponding tensors as values.
         """
-        specs = {}
-        for column, dtype in zip(columns, dtypes):
-            specs[column.decode("utf-8")] = tf.TensorSpec(tf.TensorShape([]), dtype)
-        parsed_item = serialization_ops.decode_json(data=raw_item, specs=specs)
-        return parsed_item
+        specs = {
+            column.decode("utf-8"): tf.TensorSpec(tf.TensorShape([]), dtype)
+            for column, dtype in zip(columns, dtypes)
+        }
+        return serialization_ops.decode_json(data=raw_item, specs=specs)
 
 
 class ElasticsearchIODataset(tf.compat.v2.data.Dataset):

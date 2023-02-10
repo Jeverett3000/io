@@ -43,8 +43,8 @@ class __TestFS:  # pylint: disable=invalid-name,old-style-class,no-init
 
     """
         # Setup and check preconditions.
-        tf.compat.v1.gfile.MkDir(self.prefix() + ":///test_create_file")
-        file_name = self.prefix() + ":///test_create_file/1"
+        tf.compat.v1.gfile.MkDir(f"{self.prefix()}:///test_create_file")
+        file_name = f"{self.prefix()}:///test_create_file/1"
         self.assertFalse(tf.compat.v1.gfile.Exists(file_name))
         # Create file.
         with tf.compat.v1.gfile.Open(file_name, mode="w") as w:
@@ -61,13 +61,13 @@ class __TestFS:  # pylint: disable=invalid-name,old-style-class,no-init
 
     """
         # Setup and check preconditions.
-        tf.compat.v1.gfile.MkDir(self.prefix() + ":///test_write_read_file")
-        file_name = self.prefix() + ":///test_write_read_file/1"
+        tf.compat.v1.gfile.MkDir(f"{self.prefix()}:///test_write_read_file")
+        file_name = f"{self.prefix()}:///test_write_read_file/1"
         rows = 10
         self.assertFalse(tf.compat.v1.gfile.Exists(file_name))
         # Write data.
         with tf.compat.v1.gfile.Open(file_name, mode="w") as w:
-            for i in range(rows):
+            for _ in range(rows):
                 w.write("This is row\n")
         # Read data.
         with tf.compat.v1.gfile.Open(file_name, mode="r") as r:
@@ -86,8 +86,8 @@ class __TestFS:  # pylint: disable=invalid-name,old-style-class,no-init
 
     """
         # Setup and check preconditions.
-        dir_name = self.prefix() + ":///test_delete_recursively"
-        file_name = self.prefix() + ":///test_delete_recursively/1"
+        dir_name = f"{self.prefix()}:///test_delete_recursively"
+        file_name = f"{self.prefix()}:///test_delete_recursively/1"
         self.assertFalse(tf.compat.v1.gfile.Exists(dir_name))
         self.assertFalse(tf.compat.v1.gfile.Exists(file_name))
         tf.compat.v1.gfile.MkDir(dir_name)
@@ -106,9 +106,9 @@ class __TestFS:  # pylint: disable=invalid-name,old-style-class,no-init
 
     """
         # Setup and check preconditions.
-        tf.compat.v1.gfile.MkDir(self.prefix() + ":///test_copy")
-        src_file_name = self.prefix() + ":///test_copy/1"
-        dst_file_name = self.prefix() + ":///test_copy/2"
+        tf.compat.v1.gfile.MkDir(f"{self.prefix()}:///test_copy")
+        src_file_name = f"{self.prefix()}:///test_copy/1"
+        dst_file_name = f"{self.prefix()}:///test_copy/2"
         self.assertFalse(tf.compat.v1.gfile.Exists(src_file_name))
         self.assertFalse(tf.compat.v1.gfile.Exists(dst_file_name))
         with tf.compat.v1.gfile.Open(src_file_name, mode="w") as w:
@@ -135,9 +135,9 @@ class __TestFS:  # pylint: disable=invalid-name,old-style-class,no-init
 
     """
         # Setup and check preconditions.
-        tf.compat.v1.gfile.MkDir(self.prefix() + ":///test_is_directory")
-        dir_name = self.prefix() + ":///test_is_directory/1"
-        file_name = self.prefix() + ":///test_is_directory/2"
+        tf.compat.v1.gfile.MkDir(f"{self.prefix()}:///test_is_directory")
+        dir_name = f"{self.prefix()}:///test_is_directory/1"
+        file_name = f"{self.prefix()}:///test_is_directory/2"
         with tf.compat.v1.gfile.Open(file_name, mode="w") as w:
             w.write("")
         tf.compat.v1.gfile.MkDir(dir_name)
@@ -151,17 +151,15 @@ class __TestFS:  # pylint: disable=invalid-name,old-style-class,no-init
 
     """
         # Setup and check preconditions.
-        tf.compat.v1.gfile.MkDir(self.prefix() + ":///test_list_directory")
-        tf.compat.v1.gfile.MkDir(self.prefix() + ":///test_list_directory/2")
-        tf.compat.v1.gfile.MkDir(self.prefix() + ":///test_list_directory/4")
-        dir_name = self.prefix() + ":///test_list_directory"
+        tf.compat.v1.gfile.MkDir(f"{self.prefix()}:///test_list_directory")
+        tf.compat.v1.gfile.MkDir(f"{self.prefix()}:///test_list_directory/2")
+        tf.compat.v1.gfile.MkDir(f"{self.prefix()}:///test_list_directory/4")
+        dir_name = f"{self.prefix()}:///test_list_directory"
         file_names = [
-            self.prefix() + ":///test_list_directory/1",
-            self.prefix() + ":///test_list_directory/2/3",
+            f"{self.prefix()}:///test_list_directory/1",
+            f"{self.prefix()}:///test_list_directory/2/3",
         ]
-        ch_dir_names = [
-            self.prefix() + ":///test_list_directory/4",
-        ]
+        ch_dir_names = [f"{self.prefix()}:///test_list_directory/4"]
         for file_name in file_names:
             with tf.compat.v1.gfile.Open(file_name, mode="w") as w:
                 w.write("")
@@ -173,14 +171,14 @@ class __TestFS:  # pylint: disable=invalid-name,old-style-class,no-init
         # Check that list of files is correct.
         self.assertEqual(len(ls_expected_result), len(ls_result))
         for e in ["1", "2", "4"]:
-            self.assertTrue(e in ls_result, msg="Result doesn't contain '%s'" % e)
+            self.assertTrue(e in ls_result, msg=f"Result doesn't contain '{e}'")
 
     def test_make_dirs(self):
         """Test make dirs.
 
     """
         # Setup and check preconditions.
-        dir_name = self.prefix() + ":///test_make_dirs/"
+        dir_name = f"{self.prefix()}:///test_make_dirs/"
         self.assertFalse(tf.compat.v1.gfile.Exists(dir_name))
         # Make directory.
         tf.compat.v1.gfile.MkDir(dir_name)
@@ -196,8 +194,8 @@ class __TestFS:  # pylint: disable=invalid-name,old-style-class,no-init
 
     """
         # Setup and check preconditions.
-        tf.compat.v1.gfile.MkDir(self.prefix() + ":///test_remove")
-        file_name = self.prefix() + ":///test_remove/1"
+        tf.compat.v1.gfile.MkDir(f"{self.prefix()}:///test_remove")
+        file_name = f"{self.prefix()}:///test_remove/1"
         self.assertFalse(tf.compat.v1.gfile.Exists(file_name))
         with tf.compat.v1.gfile.Open(file_name, mode="w") as w:
             w.write("")
@@ -212,9 +210,9 @@ class __TestFS:  # pylint: disable=invalid-name,old-style-class,no-init
 
     """
         # Setup and check preconditions.
-        tf.compat.v1.gfile.MkDir(self.prefix() + ":///test_rename_file")
-        src_file_name = self.prefix() + ":///test_rename_file/1"
-        dst_file_name = self.prefix() + ":///test_rename_file/2"
+        tf.compat.v1.gfile.MkDir(f"{self.prefix()}:///test_rename_file")
+        src_file_name = f"{self.prefix()}:///test_rename_file/1"
+        dst_file_name = f"{self.prefix()}:///test_rename_file/2"
         with tf.compat.v1.gfile.Open(src_file_name, mode="w") as w:
             w.write("42")
         self.assertTrue(tf.compat.v1.gfile.Exists(src_file_name))
@@ -236,9 +234,9 @@ class __TestFS:  # pylint: disable=invalid-name,old-style-class,no-init
 
     """
         # Setup and check preconditions.
-        tf.compat.v1.gfile.MkDir(self.prefix() + ":///test_rename_dir")
-        src_dir_name = self.prefix() + ":///test_rename_dir/1"
-        dst_dir_name = self.prefix() + ":///test_rename_dir/2"
+        tf.compat.v1.gfile.MkDir(f"{self.prefix()}:///test_rename_dir")
+        src_dir_name = f"{self.prefix()}:///test_rename_dir/1"
+        dst_dir_name = f"{self.prefix()}:///test_rename_dir/2"
         tf.compat.v1.gfile.MkDir(src_dir_name)
         # Rename directory.
         tf.compat.v1.gfile.Rename(src_dir_name, dst_dir_name)

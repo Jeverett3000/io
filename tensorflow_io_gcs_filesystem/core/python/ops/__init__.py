@@ -60,12 +60,11 @@ def _load_library(filename):
         except (tf.errors.NotFoundError, OSError) as e:
             errs.append(str(e))
     raise NotImplementedError(
-        "unable to open file: "
-        + "{}, from paths: {}\ncaused by: {}".format(filename, filenames, errs)
+        f"unable to open file: {filename}, from paths: {filenames}\ncaused by: {errs}"
     )
 
 
 try:
     plugin_gs = _load_library("libtensorflow_io_gcs_filesystem.so")
 except NotImplementedError as e:
-    warnings.warn("file system plugin for gs are not loaded: {}".format(e))
+    warnings.warn(f"file system plugin for gs are not loaded: {e}")

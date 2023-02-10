@@ -32,11 +32,11 @@ def test_read_file():
     """Test case for reading HDFS"""
 
     address = socket.gethostbyname(socket.gethostname())
-    print("ADDRESS: {}".format(address))
+    print(f"ADDRESS: {address}")
 
     body = b"1234567"
-    tf.io.write_file("hdfs://{}:9000/file.txt".format(address), body)
+    tf.io.write_file(f"hdfs://{address}:9000/file.txt", body)
 
-    content = tf.io.read_file("hdfs://{}:9000/file.txt".format(address))
-    print("CONTENT: {}".format(content))
+    content = tf.io.read_file(f"hdfs://{address}:9000/file.txt")
+    print(f"CONTENT: {content}")
     assert content == body

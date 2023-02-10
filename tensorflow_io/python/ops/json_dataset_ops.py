@@ -54,12 +54,12 @@ class JSONIODataset(tf.compat.v2.data.Dataset):
         with tf.name_scope("JSONIODataset") as scope:
             capacity = 4096
 
-            metadata = [] if mode is None else ["mode: %s" % mode]
+            metadata = [] if mode is None else [f"mode: {mode}"]
             resource, columns_v = core_ops.io_json_readable_init(
                 filename,
                 metadata=metadata,
                 container=scope,
-                shared_name="{}/{}".format(filename, uuid.uuid4().hex),
+                shared_name=f"{filename}/{uuid.uuid4().hex}",
             )
             columns = columns if columns is not None else columns_v.numpy()
 

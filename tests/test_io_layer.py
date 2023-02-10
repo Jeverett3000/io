@@ -109,8 +109,8 @@ class KafkaIOLayerHelper:
     """KafkaIOLayerHelper"""
 
     def func(self):
-        channel = "e{}e".format(time.time())
-        self._topic = "io-layer-test-" + channel
+        channel = f"e{time.time()}e"
+        self._topic = f"io-layer-test-{channel}"
         return tfio.experimental.IOLayer.kafka(self._topic)
 
     def check(self, images, predictions):
